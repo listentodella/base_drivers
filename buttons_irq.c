@@ -97,14 +97,18 @@ static irqreturn_t buttons_irq(int irq, void *dev_id)
 }
 
 
-
-
-
-
 /*open config pins*/
 static int button_open(struct inode *inode, struct file *file)
 {
-
+	/*
+	 *int request_irq(unsigned int irq, irq_handler_t handler, unsigned long flags, const char *name, void *dev)
+	 *参数为：
+	 *中断号，与硬件相关
+	 *中断处理函数，是一个回调函数，中断发生时会调用这个函数，dev参数会传递给它
+	 *中断处理属性、可以指定中断的触发方式、处理方式。触发：上升沿、下降沿、边沿、高电平、低电平等等；处理：共享中断等
+	 *中断名称（自定义的，随便写，可以在加载驱动后通过cat /proc/interrupts看到）
+	 *要传递给中断服务程序的私有数据（NULL，或者是该设备的结构体）
+	*/
 	request_irq(IRQ_EINT0, buttons_irq, IRQT_BOTHEDGE, "s2", &pins_desc);//EINT0根据原理图
 	request_irq(IRQ_EINT2, buttons_irq, IRQT_BOTHEDGE, "s3", &pins_desc);//EINT2根据原理图
 	request_irq(IRQ_EINT11, buttons_irq, IRQT_BOTHEDGE, "s4", &pins_desc);//EINT11根据原理图
@@ -118,13 +122,11 @@ static size_t button_read(struct file *file, char __user *buf, size_t size, loff
 
 	if (size != 1)
 		return -EINVAL;
-	/*如果没有按键动作发生，则休眠->wait_event
-	  如果有按键动作发生，返回键值
-	*/
+	/*如果没有按键动作发生，则休眠->wait_event*/
 	//会判断ev_press是否满足条件，不满足就休眠,等待wakeup触；满足接着往下跑
 	wait_event_interruptible(button_waitq, ev_press);
-
-
+	
+	/*如果有按键动作发生，返回键值*/
 	copy_to_user(buf, &key_val, 1);
 	ev_press = 0；
 	return 1;
@@ -167,6 +169,9 @@ module_exit(button_drv_exit);
 
 static int button_close(struct inode *inode, struct file *fops)
 {
+       /*
+	*void free_irq(unsigned int irq, void *dev_id)
+	*/
 	free_irq(IRQ_EINT0, &pins_desc);
 	free_irq(IRQ_EINT2, &pins_desc);
 	free_irq(IRQ_EINT11, &pins_desc);
