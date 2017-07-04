@@ -51,6 +51,21 @@ volatile unsigned long *gpfdat;
 volatile unsigned long *gpgcon;
 volatile unsigned long *gpgdat;
 
+/*
+(name) -- 生成一个等待队列头wait_queue_head_t,名字为name
+-----------------------------------------------------------------
+#define DECLARE_WAIT_QUEUE_HEAD (name)                            \
+    wait_queue_head_t name = __WAIT_QUEUE_HEAD_INITIALIZER(name)
+    
+#define __WAIT_QUEUE_HEAD_INITIALIZER (name) {                    \
+    .lock       = __SPIN_LOCK_UNLOCKED(name.lock),               \
+    .task_list = { &(name).task_list, &(name).task_list } }
+
+typedef struct __wait_queue_head wait_queue_head_t ;
+struct __wait_queue_head {
+    spinlock_t lock;
+    struct list_head task_list;
+};*/
 static DECLARE_WAIT_QUEUE_HEAD(button_waitq);
 /*中断事件标志，中断服务程序将它置1，read将它清零*/
 static volatile int ev_press = 0;
@@ -74,8 +89,12 @@ struct pin_desc pins_desc[4] = {
 
 };
 
-//中断处理函数，读出按键值
 
+//中断处理函数，读出按键值
+/*后续的学习将会遇到，中断处理一般分为上半部和下半部，上半部一般用于处理紧急的硬件操作、登记，而将真正的耗时处理工作丢给下半部
+ *此时可以在中断处理函数中，使用某种调度方法
+ *不过当工作十分简单的时候，就不需要分上下半部了
+*/
 static irqreturn_t buttons_irq(int irq, void *dev_id)
 {
 	/*switch (irq)-case，该方案建立于，中断号在硬件上是绑定的，所以可以用这种方法
@@ -85,15 +104,14 @@ static irqreturn_t buttons_irq(int irq, void *dev_id)
 	unsigned int pinval;
 
 	pinval = s3c2410_gpio_getpin(pindesc->pin);
-	if (pinval) {
+	if (pinval) 
 		key_val = 0x80 | pindesc->key_val;//松开
-	} else {
+	else 
 		key_val = pindesc->key_val;//按下
-	}
 
 	wake_up_interruptible(&button_waitq);//唤醒
 	ev_press = 1；
-	return IRQ_HANDLED;
+	return IRQ_HANDLED;//正确处理完之后就应该返回IRQ_HANDLED，表明中断已被处理
 }
 
 
