@@ -25,6 +25,9 @@ int main(void)
 
 	fcntl(fd, F_SETOWN, getpid());
 	int Oflags = fcntl(fd, F_GETFL);
+	/*改变fasync标记，最终会调用到驱动的faync =》 fasync_helper:
+	*初始化 or 释放fasync_struct
+	*/
 	fcntl(fd, F_SETFL, Oflags | FASYNC);
 
 	while (1) {
