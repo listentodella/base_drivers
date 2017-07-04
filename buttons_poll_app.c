@@ -15,7 +15,7 @@ int main(void)
 
 
 	int ret;
-	unsigned char *key_val;
+	unsigned char key_val;
 	while (1) {
 		ret = poll(fds, 1, 5000);
 		if (ret == 0) 
