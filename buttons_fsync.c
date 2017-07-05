@@ -147,10 +147,16 @@ static int button_close(struct inode *inode, struct file *fops)
 }
 
 
-static unsigned int button_poll(struct file *file, struct poll_table_struct *wait)
+static unsigned int button_poll(struct file *filp, struct poll_table *wait)
 {
 	unsigned int mask = 0;
-	poll_wait(file, &button_waitq, wait)//并不立即会休眠，而是将其加入等待队列，如果各个条件都不满足才会进入休眠等待唤醒
+	/*
+	 *void poll_wait(struct file *filp, wait_queue_head_t *queue, struct poll_table *wait) 
+	 *并不立即会休眠，而是将其加入等待队列，如果各个条件都不满足才会进入休眠(而不是阻塞)等待唤醒
+	 *wait的名称容易让人误解，实际并不会因此阻塞。将当前进程添加到wait参数指定的等待列表（poll_table)
+	 *实际作用是让唤醒参数queue对应的等待队列可以印唤醒因select、poll而睡眠的进程
+	 */
+	poll_wait(filp, &button_waitq, wait);
 
 	if (ev_press)
 		mask |= POLLIN | POLLRDNORM;
