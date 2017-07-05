@@ -146,8 +146,8 @@ static int button_close(struct inode *inode, struct file *fops)
 	free_irq(IRQ_EINT11, &pins_desc);
 	free_irq(IRQ_EINT19, &pins_desc);
 	/*
-	 * 文件关闭时，应在release中调用驱动的fasync()将文件从
-	 * 异步通知的列表中删除
+	 * 文件关闭时，应在release中调用驱动的fasync()
+	 * 将文件从异步通知的列表中删除
 	 */
 	button_fasync(-1, filp, 0);
 
@@ -178,6 +178,12 @@ static unsigned int button_poll(struct file *filp, struct poll_table *wait)
 static int button_fasync(int fd, struct file *filp, int on)
 {
 	printk("buttons fsync\n");
+	/*
+	int fasync_helper(int fd, struct file *filp, int on, struct fasync_struct **fapp)
+	处理FASYNC标志变更的函数
+	fasync_helper作用就是初始化fasync这个东西，包括分配内存和设置属性
+	最后在驱动的release里把fasync_helper初始化的东西free掉。
+	*/
 	return fasync_helper(fd, filp, on, &button_fasync);
 }
 
