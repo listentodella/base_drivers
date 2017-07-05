@@ -172,6 +172,9 @@ static struct file_operations button_fops = {
 	.read = button_read;
 	.write = button_write;
 	.release = button_close;
+	/*通过查看file_operations结构体可以发现并没有设定select成员
+	 * 实际上select和poll最终都会调用到这里
+	 */
 	.poll = button_poll;
 	.fasync = button_fasync;
 }
