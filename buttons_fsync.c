@@ -67,7 +67,9 @@ static irqreturn_t buttons_irq(int irq, void *dev_id)
 
 	wake_up_interruptible(&button_waitq);//唤醒
 	ev_press = 1；
-
+	/*void kill_fasync(struct fasync_struct **fa, int sig, int band);
+	*  资源可获得时，应调用kill_fasync()释放SIGIO信号
+	*/
 	kill_fasync(&button_async, SIGIO, POLLIN);
 
 	return IRQ_RETVAL(IRQ_HANDLED);
@@ -143,6 +145,12 @@ static int button_close(struct inode *inode, struct file *fops)
 	free_irq(IRQ_EINT2, &pins_desc);
 	free_irq(IRQ_EINT11, &pins_desc);
 	free_irq(IRQ_EINT19, &pins_desc);
+	/*
+	 * 文件关闭时，应在release中调用驱动的fasync()将文件从
+	 * 异步通知的列表中删除
+	 */
+	button_fasync(-1, filp, 0);
+
 	return 0;
 }
 
@@ -164,11 +172,13 @@ static unsigned int button_poll(struct file *filp, struct poll_table *wait)
     return mask;
 }
 
-
+/*
+ *该函数会在app调用fcntl（有FSYNC标志时）调用
+*/
 static int button_fasync(int fd, struct file *filp, int on)
 {
-	printk("buttons fsync\n");//该函数会在app调用fcntl（有FSYNC标志时）调用
-	return fasync_helper(fd, filp, on, &button_fasync)
+	printk("buttons fsync\n");
+	return fasync_helper(fd, filp, on, &button_fasync);
 }
 
 
