@@ -11,7 +11,7 @@ static int at24cxx_dev_init(void)
 {
 	struct i2c_adapter *i2c_adap;
 	i2c_adap = i2c_get_adapter(0);//0是指第几个适配器
-	at24cxx_client = i2c_new_device(i2c_adap, &at24cxx_info);
+	at24cxx_client = i2c_new_device(i2c_adap, &at24cxx_info);//不管是否真实存在都new_device
 	i2c_put_adapter(i2c_adap);
 	return 0;
 }

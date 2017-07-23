@@ -18,6 +18,7 @@ static int at24cxx_dev_init(void)
 	strlcpy(at24cxx_info.type, "at24c08", I2C_NAME_SIZE);
 
 	i2c_adap = i2c_get_adapter(0);//0是指第几个适配器
+	/*会进行判断是否真实存在，根据判断结果再决定是否new_device*/
 	at24cxx_client = i2c_new_probed_device(i2c_adap, &at24cxx_info, addr_list，NULL);
 	i2c_put_adapter(i2c_adap);
 
