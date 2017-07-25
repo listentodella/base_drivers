@@ -7,15 +7,13 @@
 
 
 
-static int __devinit at24cxx_probe(struct i2c_client *client,
-									const struct i2c_device_id *id)
+static int __devinit at24cxx_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
 	printk("%s %s %d\n", __FILE__, __func__, __line__);
 	return 0;
 }
 
-static int __devinit at24cxx_remove(struct i2c_client *client,
-									const struct i2c_device_id *id)
+static int __devinit at24cxx_remove(struct i2c_client *client, const struct i2c_device_id *id)
 {
 	printk("%s %s %d\n", __FILE__, __func__, __line__);
 	return 0;
