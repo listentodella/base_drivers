@@ -217,7 +217,8 @@ static int lcd_init(void)
 	//s3c_lcd->fix.smem_start = xxx;//显存的物理地址
 	
 	/*启动LCD*/
- 	lcd_regs->lcdcon1 |= (1 << 0);/*使能lcd本身*/
+ 	lcd_regs->lcdcon1 |= (1 << 0);/*使能lcd 控制器*/
+ 	lcd_regs->lcdcon5 |= (1 << 3);/*使能lcd本身（lcd的电源，或者说上电）*/
  	*gpbdat |= 1;/*输出高电平，使能背光*/
 
 
