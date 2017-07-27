@@ -46,6 +46,10 @@ static int at24cxx_attach(struct i2c_adapter *adapter)
 static int at24cxx_detach(struct i2c_client *client)
 {
 	printk("%s\n", __func__);
+
+	i2c_detach_client(client);
+	kfree(i2c_get_drvdata(client));
+
 	return 0;
 }
 
