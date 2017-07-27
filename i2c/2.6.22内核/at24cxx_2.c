@@ -19,10 +19,21 @@ static struct i2c_client_address_data addr_data = {
 	.force			= forces,/*强制认为存在这个设备*/
 };
 
+static struct i2c_driver at24cxx_driver;
 
 static int at24cxx_detect(struct i2c_adapter *adapter,  int address, int kind)
 {
+	struct i2c_client *new_client;
 	printk("%s\n", __func__);
+	/*构造一个i2c_client 结构体， 以后收发数据就靠它*/
+	new_client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL);
+	new_client->addr = address;
+	new_client->adapter = adapter;
+	new_client->driver = &at24cxx_driver ;
+	new_client->flags = 0;
+	/*Fill in the remaining client fields*/
+	strcpy(new_client->name, "at24cxx", I2C_NAME_SIZE);
+	i2c_attach_client(new_client);
 	return 0;
 }
 
