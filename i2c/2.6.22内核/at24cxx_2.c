@@ -23,7 +23,7 @@ static struct i2c_driver at24cxx_driver;
 
 static int at24cxx_detect(struct i2c_adapter *adapter,  int address, int kind)
 {
-	struct i2c_client *new_client;
+	struct i2c_client *new_client;/*最好设为全局变量*/
 	printk("%s\n", __func__);
 	/*构造一个i2c_client 结构体， 以后收发数据就靠它*/
 	new_client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL);
