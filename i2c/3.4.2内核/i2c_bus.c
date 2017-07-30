@@ -225,6 +225,8 @@ void i2c_inthandle(void)
 {
 	unsigned int iicSt, i;
 	//清中断
+	s3c2440_i2c_regs->iiccon &= ~(S3C2410_IICCON_IRQPEND);
+	return;
 }
 
 
