@@ -68,9 +68,6 @@ static int hello_init(void)
 	class_device_create(cls, NULL, MKDEV(major, 0), NULL, "hello1");//dev/hello1
 	class_device_create(cls, NULL, MKDEV(major, 0), NULL, "hello2");//dev/hello2,因为只分配了2个，这里肯定打开失败
 
-
-
-
 	return 0;
 }
 module_init(hello_init);
