@@ -11,6 +11,8 @@ static char tmp_buf[MYLOG_BUF_LEN];
 static int mylog_r = 0;
 static int mylog_w = 0;
 
+static DECLARE_WAIT_QUEUE_HEAD(mymsg_waitq);
+
 static int is_mylog_empty(void)
 {
   return (mylog_w == mylog_r);
@@ -30,7 +32,8 @@ static void mylog_putc(char c)
 
   mylog_buf[mylog_w] = c;
   mylog_w = (mylog_w + 1) % MYLOG_BUF_LEN;
-
+  /*唤醒等待数据的进程*/
+  wait_up_interruptible(&mymsg_waitq);
   return;
 }
 
@@ -75,22 +78,29 @@ int myprintk(const char *fmt, ...)
 }
 
 
-
-
-
-
-
-
-
-static ssize_t kmsg_read(struct file *file, char __user *buf,
+static ssize_t mymsg_read(struct file *file, char __user *buf,
 			 size_t count, loff_t *ppos)
 {
-	//printk("mymsg read\n");
+	int error = 0;
+  int i = 0;
+  char c;
 	/*把mylog_buf的数据copy_to_user，然后return*/
   //int cnt = min(1024, count);
-  copy_to_user(buf, mylog_buf, 10);
+  //如果以非阻塞方式打开并且是空的，立即返回
+  if((file->f_flags & O_NOBLOCK) && is_mylog_empty())
+    return -EAGAIN;
+  //否则休眠
+  error = wait_event_interruptible(mymsg_waitq, !is_mylog_emtpy());
+  //直至唤醒,copy_to_user
+  while (!error && (mylog_getc(&c)) && i < count) {
+			error = __put_user(c, buf);
+      buf++;
+      i++;
+		}
+    if(!error)
+      error = i;
 
-	return 10;
+	return error;
 }
 
 
@@ -101,7 +111,7 @@ static struct file_operations proc_mymsg_operations = {
 
 static int mymsg_init(void)
 {
-  snprintf(mylog_buf, "hello mymsg_buf");
+//  snprintf(mylog_buf, "hello mymsg_buf");
   /*仿照，S_ISUSR就是为什么kmsg是只读的原因*/
   myentry = create_proc_entry("mymsg", S_ISUSR, &proc_root);
   if (myentry)
@@ -115,4 +125,6 @@ static void mymsg_exit(void)
 }
 module_init(mymsg_init);
 module_exit(mymsg_exit);
+EXPORT_SYMBOL(myprintk);
+
 MODULE_LICENSE("GPL");
