@@ -120,7 +120,7 @@ static int lcd_init(void)
 	s3c_lcd->var.red.offset = 11;
 	s3c_lcd->var.red.length = 5;
 	s3c_lcd->var.green.offset = 5;
-	s3c_lcd->var.green.length = 6;	
+	s3c_lcd->var.green.length = 6;
 	s3c_lcd->var.blue.offset = 0;
 	s3c_lcd->var.blue.length = 5;
 
@@ -130,8 +130,8 @@ static int lcd_init(void)
 	s3c_lcd->fbops = &s3c_lcdfb_ops;
 		/*2.4 其他设置*/
 	s3c_lcd->pseudo_palette = pseudo_palette;//调色板
-	s3c_lcd->screen_base = ;//显存的虚拟地址
-	s3c_lcd->screen_size = 240 * 320 * 2;//显存大小  
+	//s3c_lcd->screen_base = ;//显存的虚拟地址
+	s3c_lcd->screen_size = 240 * 320 * 2;//显存大小
 
 	/*3.硬件相关的设置*/
 		/*3.1 配置GPIO用于LCD*/
@@ -208,14 +208,14 @@ static int lcd_init(void)
 
 
 		/*3.3 分配Framebuffer（显存），并把地址告诉LCD控制器*/
- 	s3c_lcd->screen_base = dma_alloc_writecombine(NULL, s3c_lcd->fix.smem_len, 
+ 	s3c_lcd->screen_base = dma_alloc_writecombine(NULL, s3c_lcd->fix.smem_len,
  											&s3c_lcd->fix.smem_start, GFP_KERNEL);
  	lcd_regs->lcdaddr1 = (s3c_lcd->fix.smem_start << 1) & ~(3 << 30);
  	lcd_regs->lcdaddr2 = ((s3c_lcd->fix.smem_start + s3c_lcd->fix.smem_len) >> 1) & 0x1fffff;
  	lcd_regs->lcdaddr3 = (240 * 16 / 16);/*一行的长度（单位：半字，2字节）*/
 
 	//s3c_lcd->fix.smem_start = xxx;//显存的物理地址
-	
+
 	/*启动LCD*/
  	lcd_regs->lcdcon1 |= (1 << 0);/*使能lcd 控制器*/
  	lcd_regs->lcdcon5 |= (1 << 3);/*使能lcd本身（lcd的电源，或者说上电）*/
