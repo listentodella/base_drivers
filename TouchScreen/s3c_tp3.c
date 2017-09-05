@@ -104,7 +104,7 @@ static irqreturn_t adc_irq(int irq, void *dev_id)
     enter_wait_pen_down_mode()
   } else {//按下
     //printk("adc_irq cnt = %d, x = %d, y = %d\n", ++cnt, adcdat0 & 0x3ff,
-      //      adcdat1 & 0x3ff);//这里的x y其实是电压值而不是坐标
+      //      adcdat1 & 0x3ff);//这里的寄存器里值其实是电压值而不是坐标
 
     /*优化措施3：多次测量求平均值*/
     x[cnt] = adcdat0 & 0x3ff;
