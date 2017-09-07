@@ -1,0 +1,17 @@
+USB总线驱动程序的作用
+1.识别USB设备
+  1.1分配地址，并告诉USB设备（set address）
+  1.2发出命令获取描述符
+
+2.查找并安装对应的设备驱动程序
+
+3.提供USB读写函数
+
+
+
+怎么写USB设备驱动程序？
+1.分配/设置usb_driver结构体
+  .id_table
+  .probe
+  .disconnect
+2.注册
