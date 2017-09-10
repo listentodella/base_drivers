@@ -16,8 +16,18 @@ static struct class *cls;
 static int s3c_dma_ioctl(struct inode *inode, struct file *file,
     unsigned int cmd, unsigned long arg)
 {
+  int i;
+  memset(src, 0xAA, BUF_SIZE);
+  memset(dst, 0x55, BUF_SIZE);
   switch (cmd) {
     case MEM_CPY_NO_DMA:{
+      for( i = 0; i < BUF_SIZE; i++)
+        dst[i] = src[i];
+      if (memcmp(src, dst, BUF_SIZE) == 0) {
+        printk("MEM_CPY_NO_DMA OK \n");
+      } else {
+        printk("MEM_CPY_NO_DMA ERROR\n");
+      }
       break;
     }
     case MEM_CPY_DMA:{
