@@ -1,4 +1,4 @@
-
+/*有DMA操作*/
 
 #define MEM_CPY_NO_DMA 0
 #define MEM_CPY_DMA 1
@@ -48,7 +48,7 @@ static int s3c_dma_ioctl(struct inode *inode, struct file *file,
       dma_regs->disrcc = (0 << 1) | (0 << 0);/*源位于AHB总线，源地址递增*/
       dma_regs->didst = dst_phys;/*目的的物理地址*/
       dma_regs->didstc = (0 << 2) | (0 << 1) | (0 << 0);/*目的位于AHB总线，递增*/
-      dma_regs->dcon = (1 << 29) | (0 << 28) | (0 << 23) | (0 << 20) | (BUF_SIZE << 0);/*使能中断,单个传输，软件触发*/
+      dma_regs->dcon = (1 << 30) | (1 << 29) | (0 << 28) | (1 << 27) | (0 << 23) | (0 << 20) | (BUF_SIZE << 0);/*使能中断,单个传输，软件触发*/
       /*启动dma*/
       dma_regs->dmasktrig = (1 << 1) | (1 << 0);
       /*如何知道DMA何时完成？何时结束----通过中断*/
