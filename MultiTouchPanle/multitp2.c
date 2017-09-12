@@ -10,6 +10,12 @@
 *b.去掉i2c_device
 * 找到\linux-3.0.86\arch\arm\mach-exynos\Mach-tiny4412.c，并注释掉
 *   i2c_register_board_info(1, i2c_devs1, ARRAY_SIZE(i2c_devs1));
+*   不去掉也可以，则在
+*   static const struct i2c_device_id mtp_id_table[] = {
+		{"100ask_mtp", 0},//这里的名字就重要了，与device里的名字匹配
+    {"ft5x0x_ts", 0},//添加这句
+		{}
+};
 *
 */
 
