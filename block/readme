@@ -1,0 +1,99 @@
+块设备驱动框架
+
+1.硬盘
+  磁头0，1...
+  柱面
+    扇区0
+    扇区1...
+
+假设：读扇区、写扇区、读扇区
+  实际上机械硬盘本身读写非常快，但是磁头这样来回切换十分浪费时间，因此通常可以优化
+  先不执行上面的命令，优化后再执行（读扇区、读扇区、写扇区）
+    ========================调整顺序
+
+2.Flash
+  块
+    扇区1 2...
+
+假设：写扇区0 写扇区1
+
+  对Flash的操作要先擦除再写，需要：
+  1先读出整块到buffer
+  2修改buffer里扇区0
+  3擦除整块
+  4烧写整块
+
+  对于每个扇区的写操作都需要遵循上面的步骤，与硬盘操作一样也需要优化操作
+
+  先不执行，放入队列，优化后执行：读出、修改、擦除、写
+    ========================合并
+
+
+所以，块设备
+  1.把“读写”放入队列
+  2.优化后再执行
+
+
+***********************************************
+
+
+框架：
+app:open read  write  "1.txt"
+--------------------------------------文件的读写
+文件系统：vfat ext2 ext3 yaffs2 jffs2  （把文件的读写转换为扇区的读写）
+---------------ll_rw_block----------------扇区的读写
+                  1.把"读写"放入队列
+                  2.调用队列的处理函数(优化、调顺序、合并)
+          块设备驱动程序
+--------------------------------------
+硬件：       硬盘、Flash
+
+《Linux内核源代码情景分析》
+
+分析ll_rw_block
+  for(i = 0; i < nr; i++) {
+    struct buffer_head *bh = bhs[i];
+    submit_bh(rw, bh);
+      struct bio *bio;//使用bh来构造bio(block input/output)
+      submit_bio(rw, bio);
+        //通用的构造请求：使用bio来构造请求（request）
+        generic_make_request(bio);
+          __generic_make_request(bio);
+            request_queue_t *q = bdev_get_queue(bio->bi_bdev);//找到队列
+
+            //调用队列的“构造请求函数”
+            ret = q->make_request_fn(q, bio);
+                //默认的函数是__make_request
+                __make_request
+                  //先尝试合并
+                  elv_merge(q, &req, bio);
+
+                  //如果合并不成，使用bio构造请求
+                  init_request_from_bio(req, bio);
+
+                  //把请求放入队列
+                  add_request(q, req);
+
+                  //执行队列
+                  __generic_unplug_device(q);
+                    //调用队列的“队列处理函数”
+                    q->request_fn(q);
+  }
+
+
+
+怎么写块设备驱动程序？
+1.分配gendisk：alloc_disk
+
+2.设置gendisk
+  2.1分配、设置队列：request_queue_t   //它提供读写能力
+    blk_init_queue
+  2.2设置gendisk其他信息              //它提供属性：比如容量
+
+3.注册gendisk:add_disk
+
+
+
+参考：
+drivers/block/xd.c
+drivers/block/z2ram.c
