@@ -65,3 +65,62 @@ uboot:md(memory display) mw(memory write)
 
 2.读内容：读0地址里的数据
   使用uboot命令 nand dump 0
+  可以认为uboot命令就是上面命令的组合
+
+
+Nand驱动框架
+APP:open read write
+--------------------------------
+      sys_open sys_read sys_wi
+VFS---------------------------
+                              FS:vfat yaffs2 jffs2
+--------------------------------
+drivers/mtd/mtdchar.c   字符设备     | 块设备       知道怎么优化>>>>drivers/mtd/mtd_blkdev.c
+                                    |         ---------------
+                                    |  nand_scan结构体      Nand Flash协议  知道发什么来读写扇区、擦除扇区、识别扇区 实现其成员
+                                    |         ---------------
+                                    |  nand_chip结构体         硬件相关      知道怎样发命令/地址、读写数据
+--------------------------------
+硬件
+
+
+硬件相关：参考/drivers/mtd/nand/at91_nand.c
+1.分配 nand_chip
+2.设置 nand_chip
+3.硬件相关设置
+4.使用结构体 nand_scan/add_mtd_partition
+
+
+
+Nand 驱动程序
+参考/drivers/mtd/nand/s3c2410.c
+s3c2410_nand_inithw
+s3c2410_nand_init_chip
+nand_scan                 //drivers/mtd/nand/nand_base.c
+  nand_scan_ident
+    nand_get_defaults
+    nand_get_flash_type
+      chip->select_chip(mtd, 0);
+      chip->cmdfunc(mtd, NAND_CMD_READID, 0x00, -1);
+      *maf_id = chip->read_byte(mtd);//厂家id
+      dev_id = chip->read_byte(mtd);//设备id
+  nand_scan_tail
+s3c2410_nand_add_partition
+  add_mtd_partitions
+    add_mtd_device
+      list_for_each(this, &mtd_notifiers) {//Q:mtd_notifiers在哪里设置？
+                                            //A:drivers/mtd/mtdchar.c, mtd_blkdev.c 调用 register_mtd_user
+    			struct mtd_notifier *not = list_entry(this, struct mtd_notifier, list);
+    			not->add(mtd);
+          //mtd_notify_add 和 blktrans_notify_add
+          先看字符设备的 mtd_notify_add
+            class_device_create
+            class_device_create
+          再看块设备的  blktrans_notify_add
+          list_for_each(this, &blktrans_majors) {//Q:blktrans_majors在哪里注册？
+                                                //A:drivers/mtd/mdblock.c 或 mtdblock_ro.c  register_mtd_user
+            struct mtd_blktrans_ops *tr = list_entry(this, struct mtd_blktrans_ops, list);
+            tr->add_mtd(tr, mtd);
+                mtdblock_add_mtd (drivers/mtd/mdblock.c)
+                  add_mtd_blktrans_dev
+                  alloc_disk、queue、add_disk....
