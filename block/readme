@@ -97,3 +97,15 @@ app:open read  write  "1.txt"
 参考：
 drivers/block/xd.c
 drivers/block/z2ram.c
+
+测试3th：
+在开发板上操作
+1.insmod ramblock3.ko
+2.格式化（与文件系统有关，如mkdosfs /dev/ramblock）
+3.挂接  mount /dev/ramblock /tmp
+4.读写文件 cd /tmp, 在里面vi文件、拷贝文件也好
+5.cd /  然后 umount /tmp
+6.cat /dev/ramblock > /mnt/ramblock.bin
+
+7.在PC上查看ramblock.bin
+  sudo mount -o loop ramblock.bin /mnt    // -o loop 可以将一个普通文件当作一个块设备挂接
