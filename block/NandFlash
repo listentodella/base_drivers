@@ -1,0 +1,67 @@
+Nand Flash是一个存储芯片
+那么这样的操作很合理：“读地址A的数据， 把数据B写到地址A”
+
+Q1：原理图上NAND Flash 和 S3C2440之间只有数据线DATA0~7，怎么传输地址？
+A1：在DATA0~7上既传输数据，又传输地址
+    当ALE为高电平时传输的是地址
+//    当ALE为低电平时传输的是数据
+
+Q2：从NAND Flash芯片手册可知，要操作NAND Flash需要先发出命令，怎么通过这7根线传输命令？
+A2：在DATA0~7上既传输数据，又传输地址，也传输命令
+    当ALE为高电平时传输的是地址
+    当CLE为高电平时传输的是命令
+    当CLE和ALE都为低电平时传输的是数据
+
+Q3：数据线既接到NAND Flash，也接到NOR Flash，还有SDRAM DM9000等等，怎么避免干扰？
+A3：这些设备在访问之前，必须选中，没有选中的芯片不会工作，相对于没接一样——————片选
+
+Q4：假设烧写NAND Flash，把命令、地址、数据发送给它之后，NAND肯定不可能瞬间完成烧写，如何判断烧写完成？
+A4：通过状态引脚RnB来判断，高电平表示就绪，低电平表示正忙
+
+Q5：怎么操作NAND Flash？
+A5：根据spec，一般的过程是：
+    发出命令
+    发出地址
+    发出数据/读数据
+
+          NAND FLASH                    S3C2440
+发命令：      选中芯片
+          CLE设为高电平              NFCMD = 命令值
+          在D0~D7输出命令值
+          发出一个写脉冲
+
+发地址：      选中芯片                NFADDR = 地址值
+          ALE设为高电平
+          在D0~D7输出地址值
+          发出一个写脉冲
+
+发数据：      选中芯片                NFDATA = 数据值
+          ALE CLE设为低电平
+          在D0~D7输出数据值
+          发出一个写脉冲
+
+读数据：      选中芯片                val = NFDATA
+          发出一个读脉冲
+            读D0~D7数据
+
+
+
+
+用UBOOT来体验NAND FLASH的操作：
+uboot:md(memory display) mw(memory write)
+
+
+
+
+1.读ID
+                                                         寄存器地址      uboot
+  选中                                            NFCONT的bit1设为0  0x4E00 0004    md.l 0x4E00 0004, 1;  mw.l 0x4E00 0004, 1
+  发出命令0x90                                    NFCMMD = 0x90      0x4E00 0008    mw.b 0x4E00 0008, 0x90
+  发出地址0x00                                    NFADDR = 0x00      0x4E00 000C    mw.b 0x4E00 000C, 0x00
+  读数据得到0xEC                                  val = NFDATA       0x4E00 0010    md.b 0x4E00 00010 1
+  读数据得到device code                            val = NFDATA       0x4E00 0010   md.b 0x4E00 00010 1
+  退出读ID的状态                                    NFCMMD = 0xFF     0x4E00 0008   mw.b 0x4E00 0008, 0xFF
+
+
+2.读内容：读0地址里的数据
+  使用uboot命令 nand dump 0
