@@ -39,6 +39,12 @@ static struct block_device_operations ramblock_fops = {
 	.owner	= THIS_MODULE,
 };
 
+static void do_ramblock_request (struct request_queue * q)
+{
+	static int cnt = 0;
+	printk("%s\n", __func__);
+}
+
 static int ramblock_init(void)
 {
   /*1.分配一个gendisk结构体*/
@@ -61,7 +67,10 @@ static int ramblock_init(void)
 
 static void ramblock_exit(void)
 {
-
+	unregister_blkdev(major, "ramblock");
+	del_gendisk(ramblock_disk);
+	put_disk(ramblock_disk);
+	blk_cleanup_queue(ramblock_queue);
 }
 
 module_init(ramblock_init);
