@@ -2,6 +2,19 @@
  * 参考
  * /drivers/mtd/nand/s3c2410.c
  * /drivers/mtd/nand/at91_nand.c
+ *
+ * 硬件相关的设置，可以识别nand flash
+ *
+ * ECC介绍：Nand Flash有个缺点，位反转
+ * 为了解决这个问题，采取
+ * 1.写page
+ * 2.生成ECC校验码
+ * 3.把ECC写入OOB(out of bank，64byte)
+ *
+ * 读 1.读page
+ *    2.读OOB里的ECC
+ *    3.算ECC
+ *    4.比较两个ECC
  */
 
 #include<...>
@@ -31,11 +44,11 @@ static struct s3c_nand_regs *s3c_nand_regs;
 static void	s3c2440_select_chip(struct mtd_info *mtd, int chipnr)
 {
   if(chipnr == -1) {
-    /*取消选中： NFCONT[1]设为 0*/
-    s3c_nand_regs->nfcont &= ~(1 << 1);
-  } else {
-    /*选中：NFCONT[1]设为 1*/
+    /*取消选中： NFCONT[1]设为 1*/
     s3c_nand_regs->nfcont |= (1 << 1);
+  } else {
+    /*选中：NFCONT[1]设为 0*/
+    s3c_nand_regs->nfcont &= ~(1 << 1);
   }
 }
 
@@ -74,6 +87,7 @@ static int s3c_nand_init(void)
   // s3c_nand->IO_ADDR_W = "NFDATA 的虚拟地址";
   s3c_nand->IO_ADDR_R = s3c_nand_regs->nfdata;
   s3c_nand->dev_ready = s3c2440_dev_ready;
+  s3c_nand->ecc.mode = NAND_ECC_SOFT;//ECC校验
 
   /*3.硬件相关的操作:根据nand flash的手册设置时间参数*/
   /*使能NAND Flash 控制器的时钟*/
