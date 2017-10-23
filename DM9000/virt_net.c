@@ -28,7 +28,7 @@ module_init(virt_net_init);
 
 static void virt_net_exit(void)
 {
-  unregister_netdevice(vnet_dev);
+  unregister_netdev(vnet_dev);
   free_netdev(vnet_dev);
 }
 module_exit(virt_net_exit);
