@@ -55,6 +55,26 @@ node_t * create_list(int n)
     return head;
 }
 
+node_t *add_to_list()
+{
+    printf("How to add?\n");
+    printf("1. add to head\n");
+    printf("2. add to middle\n");
+    printf("3. add to tail\n");
+    printf("please make choice:");
+    int a;
+    scanf("%d", &a);
+    getchar();
+
+    switch(a) {
+    case 1:
+        if(!add_to_head()) {
+            printf("add to head failed\n");
+            return NULL;
+        }
+    }
+}
+
 void print_list(node_t *head)
 {
     node_t *p = head->next;
@@ -82,6 +102,11 @@ int main(int argc, char **argv)
 
     print_list(res);
 
+    res = add_to_list();
+    if (res == NULL) {
+        printf("failed to add node to list...\n");
+        return -1;
+    }
 
     return 0;
 }
