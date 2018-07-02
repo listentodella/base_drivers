@@ -83,6 +83,55 @@ node_t *add_to_head()
     return head;
 }
 
+
+node_t *add_to_mid()
+{
+    node_t *p = NULL, *tmp1, *tmp2;
+    int n, count = 1;
+
+    p = (node_t *)malloc(sizeof(node_t) * 1);
+    if (p == NULL) {
+        MY_ERR("add nodes failed\n");
+        return NULL;
+    }
+
+    printf("input the number of node insert after:");
+    scanf("%d", &n);
+    getchar();
+
+    tmp1 = head->next;
+    while (tmp1->next) {
+       if (n == count) {
+           break;
+       }
+       count++;
+       tmp1 = tmp1->next;
+    }
+
+    if (n <= 0) {
+        printf("please input valid numbder...\n");
+        return NULL;
+    }
+
+    printf("input the data for this node:");
+    scanf("%d", &p->a);
+    getchar();
+
+    if (!tmp1->next) {
+        printf("the number is bigger than this list\n");
+        printf("insert this node after the tail\n");
+    } else {
+        printf("insert this node after %dth node...\n", count);
+    }
+
+    tmp2 = tmp1->next;
+    tmp1->next = p;
+    p->next = tmp2;
+
+    return head;
+}
+
+
 node_t *add_to_tail()
 {
     node_t *p = NULL, *tmp;
@@ -124,10 +173,13 @@ node_t *add_to_list()
             MY_ERR("add to head failed\n");
             return NULL;
         }
-        print_list(head);
         break;
 
     case 2:
+        if(!add_to_mid()) {
+            MY_ERR("add to mid failed\n");
+            return NULL;
+        }
         break;
 
     case 3:
@@ -135,9 +187,10 @@ node_t *add_to_list()
             MY_ERR("add to tail failed\n");
             return NULL;
         }
-        print_list(head);
         break;
     }
+
+    print_list(head);
 
     return head;
 }
