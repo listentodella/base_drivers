@@ -20,6 +20,9 @@ typedef struct node {
 } node_t;
 
 node_t * create_list(int n);
+node_t * destroy_list(int n);
+
+unsigned int list_size();
 
 void print_list(node_t *head);
 

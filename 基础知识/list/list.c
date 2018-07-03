@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     }
 
     print_list(res);
-
+    printf("list size is %d\n", list_size());
     res = add_to_list();
     if (res == NULL) {
         MY_ERR("failed to add node to list...\n");

@@ -63,6 +63,19 @@ void print_list(node_t *head)
 }
 
 
+unsigned int list_size()
+{
+    node_t *p = head->next;
+    int count = 0;
+    while(p) {
+        count++;
+        p = p->next;
+    }
+
+    return count;
+}
+
+
 node_t *add_to_head()
 {
     node_t *p = NULL, *tmp;
@@ -196,5 +209,16 @@ node_t *add_to_list()
 }
 
 
+node_t *list_sort()
+{
+    node_t *p, *q, *i;
+    
+    for (i = head->next; i->next != NULL; i = i->next) {
+        for (;;) {
 
+        }
+    }
+
+    return head;
+}
 
