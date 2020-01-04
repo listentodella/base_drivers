@@ -11,78 +11,8 @@
 #include <unistd.h>
 #include "list.h"
 
+
 node_t *head = NULL;
-
-
-node_t * create_list(int n)
-{
-    int i;
-    node_t *p = NULL, *q = NULL;
-    
-    head = (node_t *)malloc(sizeof(node_t) * 1);
-    if (head == NULL) {
-        printf("create list head failed!\n");
-        return NULL;
-    }
-    
-    p = (node_t *)malloc(sizeof(node_t) * 1);
-    if (p == NULL) {
-        printf("create node failed!\n");
-        return NULL;
-    }
-    printf("please input the data for this node:");
-    scanf("%d", &(p->a));
-    getchar();
-    head->next = p;
-
-    for(i = 0; i < n - 1; i++) {
-        q = (node_t *)malloc(sizeof(node_t) * 1);
-        if (q == NULL) {
-            printf("create node failed!\n");
-            return NULL;
-        }
-
-        printf("please input the data for this node:");
-        scanf("%d", &(q->a));
-        getchar();
-
-        p->next = q;
-        p = q;
-    }
-
-    p->next = NULL;
-    
-    return head;
-}
-
-node_t *add_to_list()
-{
-    printf("How to add?\n");
-    printf("1. add to head\n");
-    printf("2. add to middle\n");
-    printf("3. add to tail\n");
-    printf("please make choice:");
-    int a;
-    scanf("%d", &a);
-    getchar();
-
-    switch(a) {
-    case 1:
-        if(!add_to_head()) {
-            printf("add to head failed\n");
-            return NULL;
-        }
-    }
-}
-
-void print_list(node_t *head)
-{
-    node_t *p = head->next;
-    while (p) {
-        printf("node's data is %d\n", p->a);
-        p = p->next;
-    }
-}
 
 
 int main(int argc, char **argv)
@@ -96,15 +26,15 @@ int main(int argc, char **argv)
     
     node_t *res = create_list(n);
     if (res == NULL) {
-        printf("failed to create list...\n");
+        MY_ERR("failed to create list...\n");
         return -1;
     }
 
     print_list(res);
-
+    printf("list size is %d\n", list_size());
     res = add_to_list();
     if (res == NULL) {
-        printf("failed to add node to list...\n");
+        MY_ERR("failed to add node to list...\n");
         return -1;
     }
 
