@@ -1,0 +1,134 @@
+@startuml
+package "SEE.Sensor.Class" as Pa #white {
+Class sns_sensor {
+	sns_sensor_cb
+	sns_sensor_api
+	sns_sensor_instance_api
+	sns_sensor_state
+}
+
+Class sns_sensor_cb {
+	struct_len
+	get_service_manager (sns_sensor)
+	get_sensor_instance (sns_sensor)
+	create_instance (sns_sensor)
+	remove_instance (sns_sensor_instance)
+	get_library_sensor (sns_sensor)
+	get_registration_index (sns_sensor)
+}
+
+Class sns_sensor_api {
+	struct_len
+	init (sns_sensor)
+	deinit (sns_sensor)
+	notify_event (sns_sensor)
+	set_client_request (sns_sensor)
+	get_sensor_uid
+}
+
+Class sns_sensor_instance_api {
+	struct_len
+	init (sns_sensor_instance)
+	set_client_config (sns_sensor_instance)
+	notify_event (sns_sensor_instance)
+}
+
+Class sns_sensor_instance {
+	sns_sensor_instance_state
+	sns_sensor_instance_cb
+}
+
+Class sns_sensor_instance_cb {
+	struct_len
+	get_service_manager (sns_sensor_instance)
+	get_client_request (sns_sensor_instance)
+	remove_client_request (sns_sensor_instance)
+	add_client_request (sns_sensor_instance)
+}
+
+Class sns_sensor_instance_state {
+	uint32_t state_len
+	uint64_t state[1]
+}
+
+Class sns_sensor_state {
+	uint32_t state_len
+	uint64_t state[1]
+}
+
+}
+
+sns_sensor <|-- sns_sensor_cb
+sns_sensor <|-- sns_sensor_api
+sns_sensor <|-- sns_sensor_instance_api
+sns_sensor <|-- sns_sensor_state
+sns_sensor_instance <|-- sns_sensor_instance_cb
+sns_sensor_instance <|-- sns_sensor_instance_state
+
+
+package "SEE.Sensor.Class" as Pb #yellow {
+Class sns_register_cb {
+	struct_len
+	init_sensor(state_len, sns_sensor_api, sns_sensor_instance_api)
+}
+
+Class sns_register_entry {
+	cnt
+	sns_register_sensors(sns_register_cb)
+}
+
+Class sns_service_manager {
+	struct_len
+	get_service(sns_service_manager, service_type)
+}
+
+Class sns_stream_service {
+	sns_service
+	sns_stream_service_api
+}
+
+Class sns_data_stream {
+	sns_data_stream_api
+}
+
+Class sns_stream_service_api {
+	struct_len
+	create_sensor_stream(sns_stream_service, sns_sensor, sensor_uid, sns_data_stream)
+	create_sensor_instance_stream(sns_stream_service, sns_sensor_instance, sensor_uid, sns_data_stream)
+	remove_stream(sns_stream_service, sns_data_stream)
+}
+
+Class sns_data_stream_api {
+	struct_len
+	send_request(sns_data_stream, sns_request)
+	initiate_flush(sns_data_stream)
+	peek_input(sns_data_stream)//return sns_sensor_event
+	get_next_input(sns_data_stream)//return sns_sensor_event
+	get_input_cnt(sns_data_stream)
+}
+
+Class sns_request {
+	uint32_t message_id
+	uint32_t request_len
+	void *request
+}
+
+Class sns_sensor_event {
+	sns_time ts
+	uint32_t message_id
+	uint32_t event_len
+	uint64_t event[1]
+}
+
+
+
+
+}
+
+sns_register_entry <|-- sns_register_cb
+sns_stream_service <|-- sns_stream_service_api
+
+
+
+@enduml
+

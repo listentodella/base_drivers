@@ -1,0 +1,673 @@
+diff --git a/ssc_drivers/demo/registry/spi/kona_hdk_demo_0.json b/ssc_drivers/demo/registry/spi/kona_hdk_demo_0.json
+index 0735088..83f35ca 100644
+--- a/ssc_drivers/demo/registry/spi/kona_hdk_demo_0.json
++++ b/ssc_drivers/demo/registry/spi/kona_hdk_demo_0.json
+@@ -95,10 +95,10 @@
+         "data": "10"
+       },
+       "min_bus_speed_khz":{ "type": "int", "ver": "0",
+-        "data": "0"
++        "data": "10000"
+       },
+       "max_bus_speed_khz":{ "type": "int", "ver": "0",
+-        "data": "3300"
++        "data": "10000"
+       },
+       "reg_addr_type":{ "type": "int", "ver": "0",
+         "data": "0"
+@@ -113,17 +113,20 @@
+         "data": "1"
+       },
+       "irq_drive_strength":{ "type": "int", "ver": "0",
+-        "data": "4"
++        "data": "0"
+       },
+       "irq_trigger_type":{ "type": "int", "ver": "0",
+-        "data": "0"
++        "data": "3"
+       },
+       "num_rail":{ "type": "int", "ver": "0",
+-        "data": "1"
++        "data": "2"
+       },
+       "rail_on_state":{ "type": "int", "ver": "0",
+         "data": "2"
+       },
++      "vdd_rail":{ "type": "str", "ver": "0",
++        "data": "/pmic/client/sensor_vdd"
++      },
+       "vddio_rail":{ "type": "str", "ver": "0",
+         "data": "/pmic/client/sensor_vddio"
+       },
+@@ -131,7 +134,7 @@
+         "data": "0"
+       },
+       "min_odr":{ "type": "int", "ver": "0",
+-        "data": "25"
++        "data": "20"
+       },
+       "max_odr":{ "type": "int", "ver": "0",
+         "data": "400"
+@@ -348,7 +351,7 @@
+         "data": "-1"
+       }
+     },
+-	".crt_cfg":{
++	  ".crt_cfg":{
+       "owner": "sns_demo",
+       "crt_itvl":{ "type": "int", "ver": "0",
+         "data": "20"
+@@ -378,5 +381,23 @@
+         "data": "400"
+       }
+     }
++  },
++  "demo_spec": {
++    "owner": "demo",
++    ".config":{
++      "owner": "demo",
++      ".dummy_byte": {
++        "owner": "demo",
++        "i2c_dummy": { "type": "int", "ver": "0",
++          "data": "2"
++        },
++        "i3c_dummy": { "type": "int", "ver": "0",
++          "data": "2"
++        },
++        "spi_dummy": { "type": "int", "ver": "0",
++          "data": "1"
++        }
++      }
++    }
+   }
+ }
+diff --git a/ssc_drivers/demo/registry/spi/kona_hdk_demo_1.json b/ssc_drivers/demo/registry/spi/kona_hdk_demo_1.json
+index bddad0c..8c13d97 100644
+--- a/ssc_drivers/demo/registry/spi/kona_hdk_demo_1.json
++++ b/ssc_drivers/demo/registry/spi/kona_hdk_demo_1.json
+@@ -95,10 +95,10 @@
+         "data": "10"
+       },
+       "min_bus_speed_khz":{ "type": "int", "ver": "0",
+-        "data": "0"
++        "data": "10000"
+       },
+       "max_bus_speed_khz":{ "type": "int", "ver": "0",
+-        "data": "3300"
++        "data": "10000"
+       },
+       "reg_addr_type":{ "type": "int", "ver": "0",
+         "data": "0"
+@@ -113,17 +113,20 @@
+         "data": "1"
+       },
+       "irq_drive_strength":{ "type": "int", "ver": "0",
+-        "data": "4"
++        "data": "0"
+       },
+       "irq_trigger_type":{ "type": "int", "ver": "0",
+-        "data": "0"
++        "data": "3"
+       },
+       "num_rail":{ "type": "int", "ver": "0",
+-        "data": "1"
++        "data": "2"
+       },
+       "rail_on_state":{ "type": "int", "ver": "0",
+         "data": "2"
+       },
++      "vdd_rail":{ "type": "str", "ver": "0",
++        "data": "/pmic/client/sensor_vdd"
++      },
+       "vddio_rail":{ "type": "str", "ver": "0",
+         "data": "/pmic/client/sensor_vddio"
+       },
+@@ -134,7 +137,7 @@
+         "data": "20"
+       },
+       "max_odr":{ "type": "int", "ver": "0",
+-        "data": "500"
++        "data": "400"
+       }
+     },
+     ".orient":{
+@@ -348,7 +351,7 @@
+         "data": "4"
+       }
+     },
+-	".crt_cfg":{
++	  ".crt_cfg":{
+       "owner": "sns_demo",
+       "crt_itvl":{ "type": "int", "ver": "0",
+         "data": "10"
+@@ -378,5 +381,23 @@
+         "data": "400"
+       }
+     }
++  },
++  "demo_spec": {
++    "owner": "sns_demo",
++    ".config":{
++      "owner": "sns_demo",
++      ".dummy_byte": {
++        "owner": "snsn_demo",
++        "i2c_dummy": { "type": "int", "ver": "0",
++          "data": "2"
++        },
++        "i3c_dummy": { "type": "int", "ver": "0",
++          "data": "2"
++        },
++        "spi_dummy": { "type": "int", "ver": "0",
++          "data": "1"
++        }
++      }
++    }
+   }
+ }
+diff --git a/ssc_drivers/demo/src/sns_demo_acc_sensor.c b/ssc_drivers/demo/src/sns_demo_acc_sensor.c
+index 7f947e4..67269c9 100644
+--- a/ssc_drivers/demo/src/sns_demo_acc_sensor.c
++++ b/ssc_drivers/demo/src/sns_demo_acc_sensor.c
+@@ -117,7 +117,9 @@ sns_rc demo_acc_init(sns_sensor *const this)
+     // state->res_idx = 2;// +-8g
+     float resolutions[] = {DEMO_ACC_RSL_2G, DEMO_ACC_RSL_4G, DEMO_ACC_RSL_8G, DEMO_ACC_RSL_16G};//mg/LSB
+     sns_memscpy(&state->resolutions, sizeof(state->resolutions), resolutions, sizeof(state->resolutions));
+-    state->scale_factor = DEMO_SCALE_FACTOR_DATA_ACCEL;
++    //why need this factor since later offset it
++    //state->scale_factor = DEMO_SCALE_FACTOR_DATA_ACCEL * 1e-6 * G;
++    state->scale_factor = G * 1e-3;
+ 
+     demo_common_init(this);
+     demo_acc_publish_attributes(this);
+diff --git a/ssc_drivers/demo/src/sns_demo_common.h b/ssc_drivers/demo/src/sns_demo_common.h
+index b2fe65a..6b6721e 100644
+--- a/ssc_drivers/demo/src/sns_demo_common.h
++++ b/ssc_drivers/demo/src/sns_demo_common.h
+@@ -55,15 +55,15 @@
+ //#endif
+ 
+ 
+-
+-typedef struct _com_port_info {
++typedef struct com_port_info {
+     uint8_t i2c_addr;
+     uint8_t i3c_addr;
++    uint8_t dummy_byte;
+     sns_com_port_config com_config;
+     sns_sync_com_port_handle *port_handle;
+-} com_port_info_t;
++} com_port_info;
+ 
+-typedef struct _demo_sensor_cfg {
++typedef struct demo_sensor_cfg {
+     bool timer_is_active;
+     float requested_odr;
+     float current_odr;
+@@ -74,13 +74,15 @@ typedef struct _demo_sensor_cfg {
+     //tbc
+ } demo_sensor_cfg;
+ 
+-
+ // #define my_offsetof(TYPE, MEMBER)	((size_t)&((TYPE *)0)->MEMBER)
+ // #define container_of(ptr, type, member) ({                      \
+ 	// const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+ 	// (type *)( (char *)__mptr - offsetof(type,member) );})
+ #define container_of(member_type, member_ptr, type, member) \
+     ({                                                      \
+-        const member_type *__mptr = (member_ptr);           \
++        member_type *__mptr = (member_ptr);                 \
+         (type *)((char *)__mptr - offsetof(type, member));  \
+     })
++
++// #define DALSYSCMN_CONTAINEROF(ptr, type, member)  \
++//    ({const typeof( ((type *)0)->member ) *__mptr = (ptr);  (type *)( (char *)__mptr - offsetof(type,member) );})
+\ No newline at end of file
+diff --git a/ssc_drivers/demo/src/sns_demo_hal.h b/ssc_drivers/demo/src/sns_demo_hal.h
+index a97b9ac..356f359 100644
+--- a/ssc_drivers/demo/src/sns_demo_hal.h
++++ b/ssc_drivers/demo/src/sns_demo_hal.h
+@@ -74,7 +74,12 @@ extern const float demo_accel_res[];
+ extern const range_attr demo_gyro_ranges[];
+ extern const float demo_gyro_res[];
+ 
++sns_rc demo_test_com_read_wrapper(sns_sensor *this, sns_sync_com_port_service *scp_service,
++                                  sns_sync_com_port_handle **port_handle, uint32_t addr,
++                                  uint8_t *buffer, uint32_t size, uint32_t *xfer_size);
++
+ sns_rc demo_com_read_wrapper(sns_sync_com_port_service *scp_service,
++                             //sns_sync_com_port_handle **port_handle,
+                              sns_sync_com_port_handle *port_handle,
+                              uint32_t addr, uint8_t *buffer,
+                              uint32_t size, uint32_t *xfer_size);
+@@ -88,6 +93,8 @@ sns_rc demo_com_write_wrapper(sns_sync_com_port_service *scp_service,
+ sns_rc demo_switch_spi_bus(sns_sync_com_port_service *scp_service,
+                            sns_sync_com_port_handle *port_handle);
+ sns_rc demo_sw_reset(sns_sensor_instance *const instance);
++sns_rc demo_test_read(sns_sensor *this, sns_sync_com_port_service *scp_service,
++                         sns_sync_com_port_handle *sns_sync_com_port_handle, uint8_t *buffer);
+ sns_rc demo_read_chip_id(sns_sync_com_port_service *scp_service,
+                          sns_sync_com_port_handle *sns_sync_com_port_handle, uint8_t *buffer);
+ void demo_handle_acc_timer_event(sns_sensor_instance *const this,
+diff --git a/ssc_drivers/demo/src/sns_demo_hal_island.c b/ssc_drivers/demo/src/sns_demo_hal_island.c
+index 0901482..7c2f728 100644
+--- a/ssc_drivers/demo/src/sns_demo_hal_island.c
++++ b/ssc_drivers/demo/src/sns_demo_hal_island.c
+@@ -2,17 +2,53 @@
+ #include "sns_demo_sensor.h"
+ #include "sns_demo_sensor_instance.h"
+ 
++sns_rc demo_test_com_read_wrapper(sns_sensor *this, sns_sync_com_port_service *scp_service,
++                                  sns_sync_com_port_handle **port_handle, uint32_t addr,
++                                  uint8_t *buffer, uint32_t size, uint32_t *xfer_size)
++{
++    sns_rc ret = SNS_RC_SUCCESS;
++    com_port_info *com_port =
++        container_of(sns_sync_com_port_handle *, port_handle, com_port_info, port_handle);
++
++
++    DEMO_SENSOR_LOG(HIGH, this, "demo_test_com_read_wrapper:get dummy_byte = %d", com_port->dummy_byte);
++
++    uint8_t temp_buf[size + com_port->dummy_byte];
++
++    sns_port_vector port_vec = {
++        .reg_addr = addr,
++        .buffer = temp_buf,
++        .bytes = ARR_SIZE(temp_buf),
++        .is_write = false
++    };
++
++    if (!port_handle) {
++        return SNS_RC_INVALID_VALUE;
++    }
++
++    if (!scp_service) {
++        return SNS_RC_NOT_AVAILABLE;
++    }
++
++    ret = scp_service->api->sns_scp_register_rw(*port_handle, &port_vec, 1, false, xfer_size);
++
++    sns_memscpy(buffer, size * sizeof(uint8_t), (temp_buf + com_port->dummy_byte), size * sizeof(uint8_t));
++
++    return ret;
++}
++
+ sns_rc demo_com_read_wrapper(sns_sync_com_port_service *scp_service,
++                             //sns_sync_com_port_handle **port_handle,
+                              sns_sync_com_port_handle *port_handle,
+                              uint32_t addr, uint8_t *buffer,
+                              uint32_t size, uint32_t *xfer_size)
+ {
+     sns_rc ret = SNS_RC_SUCCESS;
+-    // demo_state *state =
+-    //     container_of(sns_sync_com_port_service, scp_service, demo_state, scp_service);
++    // com_port_info *com_port =
++    //     container_of(sns_sync_com_port_handle *, port_handle, com_port_info, port_handle);
+ 
+-    // uint8_t temp_buf[size + state->dummy_byte];
+     uint8_t temp_buf[size + DEMO_SPI_DUMMY];
++    // uint8_t temp_buf[size + com_port->dummy_byte];
+ 
+     sns_port_vector port_vec = {
+         .reg_addr = addr,
+@@ -30,9 +66,10 @@ sns_rc demo_com_read_wrapper(sns_sync_com_port_service *scp_service,
+     }
+ 
+     ret = scp_service->api->sns_scp_register_rw(port_handle, &port_vec, 1, false, xfer_size);
++    //ret = scp_service->api->sns_scp_register_rw(*port_handle, &port_vec, 1, false, xfer_size);
+ 
+-    //sns_memscpy(buffer, size * sizeof(uint8_t), (temp_buf + state->dummy_byte), size * sizeof(uint8_t));
+     sns_memscpy(buffer, size * sizeof(uint8_t), (temp_buf + DEMO_SPI_DUMMY), size * sizeof(uint8_t));
++    // sns_memscpy(buffer, size * sizeof(uint8_t), (temp_buf + com_port->dummy_byte), size * sizeof(uint8_t));
+ 
+     return ret;
+ }
+@@ -65,16 +102,26 @@ sns_rc demo_switch_spi_bus(sns_sync_com_port_service *scp_service, sns_sync_com_
+ {
+     sns_rc ret = SNS_RC_SUCCESS;
+     uint8_t buffer[2] = {0};
++    //ret = demo_com_read_wrapper(scp_service, &port_handle, DEMO_CHIP_ID_ADDR, buffer,
+     ret = demo_com_read_wrapper(scp_service, port_handle, DEMO_CHIP_ID_ADDR, buffer,
+                                 ARR_SIZE(buffer), NULL);
+     udelay(2000);
+     return ret;
+ }
+ 
++sns_rc demo_test_read(sns_sensor *this, sns_sync_com_port_service *scp_service,
++                         sns_sync_com_port_handle *port_handle, uint8_t *buffer)
++{
++    sns_rc ret = SNS_RC_SUCCESS;
++    ret = demo_test_com_read_wrapper(this, scp_service, &port_handle, DEMO_CHIP_ID_ADDR, buffer, 2, NULL);
++    return ret;
++}
++
+ sns_rc demo_read_chip_id(sns_sync_com_port_service *scp_service,
+-                       sns_sync_com_port_handle *port_handle, uint8_t *buffer)
++                         sns_sync_com_port_handle *port_handle, uint8_t *buffer)
+ {
+     sns_rc ret = SNS_RC_SUCCESS;
++    //ret = demo_com_read_wrapper(scp_service, &port_handle, DEMO_CHIP_ID_ADDR, buffer, 2, NULL);
+     ret = demo_com_read_wrapper(scp_service, port_handle, DEMO_CHIP_ID_ADDR, buffer, 2, NULL);
+     return ret;
+ }
+@@ -106,6 +153,7 @@ void demo_handle_acc_timer_event(sns_sensor_instance *const this, sns_timer_sens
+     // DEMO_INSTANCE_LOG(HIGH, this, "demo_handle_acc_timer_event:get chip id = [0x%02x, 0x%02x, 0x%02x, 0x%02x]",
+     //                 buffer[0], buffer[1], buffer[2], buffer[3]);
+ 
++    //demo_com_read_wrapper(istate->scp_service, &istate->com_port.port_handle, DEMO_ACC_X_ADDR, buffer, sizeof(buffer), NULL);
+     demo_com_read_wrapper(istate->scp_service, istate->com_port.port_handle, DEMO_ACC_X_ADDR, buffer, sizeof(buffer), NULL);
+     data[0] = (int16_t) (buffer[0] | buffer[1] << 8);
+     data[1] = (int16_t) (buffer[2] | buffer[3] << 8);
+@@ -114,9 +162,9 @@ void demo_handle_acc_timer_event(sns_sensor_instance *const this, sns_timer_sens
+                     data[0], data[1], data[2], timer_event->timeout_time);
+ 
+     vector3 data_cal = {
+-        .x = (data[0] * state->resolutions[state->res_idx] - fac_cal_bias[0]) / state->scale_factor,
+-        .y = (data[1] * state->resolutions[state->res_idx] - fac_cal_bias[1]) / state->scale_factor,
+-        .z = (data[2] * state->resolutions[state->res_idx] - fac_cal_bias[2]) / state->scale_factor
++        .x = (data[0] * state->resolutions[state->res_idx] - fac_cal_bias[0]) * state->scale_factor,
++        .y = (data[1] * state->resolutions[state->res_idx] - fac_cal_bias[1]) * state->scale_factor,
++        .z = (data[2] * state->resolutions[state->res_idx] - fac_cal_bias[2]) * state->scale_factor
+     };
+ 
+ #if 0
+diff --git a/ssc_drivers/demo/src/sns_demo_sensor.c b/ssc_drivers/demo/src/sns_demo_sensor.c
+index e8a8892..e2027ef 100644
+--- a/ssc_drivers/demo/src/sns_demo_sensor.c
++++ b/ssc_drivers/demo/src/sns_demo_sensor.c
+@@ -1,5 +1,7 @@
+ #include "sns_demo_sensor.h"
++// #include "sns_demo_common.h"
+ 
++#define CONFIG_SPEC             ".demo_spec.config"
+ #define CONFIG_ACCEL            ".accel.config"
+ #define CONFIG_GYRO             ".gyro.config"
+ #define CONFIG_TEMP             ".temp.config"
+@@ -17,6 +19,7 @@
+ #define DEMO_GEN_GROUP(x, group) SENSOR_NAME "_" #x group
+ 
+ enum {
++    REG_CONFIG_SPEC,
+     REG_CONFIG_ACCEL,
+     REG_CONFIG_GYRO,
+     REG_CONFIG_TEMP,
+@@ -33,6 +36,7 @@ enum {
+ 
+ static char *demo_registry_cfg[][REG_MAX_CONFIGS] = {
+     {
++        DEMO_GEN_GROUP(0, CONFIG_SPEC),
+         DEMO_GEN_GROUP(0, CONFIG_ACCEL),
+         DEMO_GEN_GROUP(0, CONFIG_GYRO),
+         DEMO_GEN_GROUP(0, CONFIG_TEMP),
+@@ -46,6 +50,7 @@ static char *demo_registry_cfg[][REG_MAX_CONFIGS] = {
+         DEMO_GEN_GROUP(0, PLATFORM_CONFIG_MD),
+     },
+     {
++        DEMO_GEN_GROUP(1, CONFIG_SPEC),
+         DEMO_GEN_GROUP(1, CONFIG_ACCEL),
+         DEMO_GEN_GROUP(1, CONFIG_GYRO),
+         DEMO_GEN_GROUP(1, CONFIG_TEMP),
+@@ -335,8 +340,8 @@ sns_rc demo_start_hw_detect(sns_sensor *const this)
+     }
+ 
+     state->common->rail_cfg.rail_vote = state->common->registry_rail_on_state;
+-    DEMO_SENSOR_LOG(HIGH, this, "demo_start_hw_detect:sensor %d vote %d -> %d",
+-                    state->sensor_type, state->common->rail_cfg.rail_vote, SNS_RAIL_ON_LPM);// -> ???
++    // DEMO_SENSOR_LOG(HIGH, this, "demo_start_hw_detect:sensor %d vote %d -> %d",
++                    // state->sensor_type, state->common->rail_cfg.rail_vote, SNS_RAIL_ON_LPM);// -> ???
+     demo_sensor_update_power_rail_vote(this, state->common->rail_cfg.rail_vote, NULL);
+     demo_sensor_start_power_rail_timer(this, timeout_ticks, DEMO_POWER_RAIL_PENDING_INIT);
+ 
+@@ -344,6 +349,10 @@ sns_rc demo_start_hw_detect(sns_sensor *const this)
+         DEMO_SENSOR_LOG(HIGH, this, "demo_start_hw_detect:switch spi bus, dummy = %d", state->dummy_byte);
+         demo_switch_spi_bus(state->scp_service, state->common->com_port.port_handle);
+     }
++    /* interesting: why remove param "this", then can only get 0x00? related with island? */
++    uint8_t test_buffer[2] = {0};
++    demo_test_read(this, state->scp_service, state->common->com_port.port_handle, test_buffer);
++    DEMO_SENSOR_LOG(HIGH, this, "demo_start_hw_detect:test buffer = [0x%02x, 0x%02x]", test_buffer[0], test_buffer[1]);
+ 
+     demo_read_chip_id(state->scp_service, state->common->com_port.port_handle, chip_id);
+     if (chip_id[0] == DEMO_CHIP_ID_0 || chip_id[0] == DEMO_CHIP_ID_1) {
+@@ -352,8 +361,7 @@ sns_rc demo_start_hw_detect(sns_sensor *const this)
+         state->hw_is_present = false;
+         ret = SNS_RC_INVALID_LIBRARY_STATE;
+     }
+-    DEMO_SENSOR_LOG(HIGH, this, "demo_start_hw_detect:read chip id = [0x%02x, 0x%02x]",
+-        chip_id[0], chip_id[1]);
++    DEMO_SENSOR_LOG(HIGH, this, "demo_start_hw_detect:read chip id = [0x%02x, 0x%02x]", chip_id[0], chip_id[1]);
+     /* bus power down and close com port */
+     if (state->common->com_port.port_handle) {
+         state->scp_service->api->sns_scp_update_bus_power(state->common->com_port.port_handle, false);
+@@ -380,21 +388,24 @@ static void demo_publish_diy_registry_attributes(sns_sensor *const this)
+ {
+     demo_state *state = (demo_state *)this->state->state;
+     {
+-        sns_std_attr_value_data value = SNS_ATTR;
+-        value.has_boolean = true;
+-        value.boolean = state->common->ss_cfg.is_dri;
++        sns_std_attr_value_data value = {
++            .has_boolean = true,
++            .boolean = state->common->ss_cfg.is_dri
++        };
+         sns_publish_attribute(this, SNS_STD_SENSOR_ATTRID_DRI, &value, 1, false);
+     }
+     {
+-        sns_std_attr_value_data value = SNS_ATTR;
+-        value.has_boolean = true;
+-        value.boolean = state->common->ss_cfg.sync_stream;
++        sns_std_attr_value_data value = {
++            .has_boolean = true,
++            .boolean = state->common->ss_cfg.sync_stream
++        };
+         sns_publish_attribute(this, SNS_STD_SENSOR_ATTRID_STREAM_SYNC, &value, 1, false);
+     }
+     {
+-        sns_std_attr_value_data value = SNS_ATTR;
+-        value.has_sint = true;
+-        value.sint = state->common->ss_cfg.hw_id;
++        sns_std_attr_value_data value = {
++            .has_sint = true,
++            .sint = state->common->ss_cfg.hw_id
++        };
+         sns_publish_attribute(this, SNS_STD_SENSOR_ATTRID_HW_ID, &value, 1, false);
+     }
+ 
+@@ -461,7 +472,42 @@ void demo_sensor_register_pf_resource(sns_sensor *const this)
+     /* register power rail */
+     demo_register_power_rail(this);
+ }
++#if 0
++static bool demo_sns_registery_parse_spec_func(sns_registry_data_item *reg_item,
++                                               pb_buffer_arg *item_name,
++                                               pb_buffer_arg *item_str_val, void *parsed_buffer)
++{
++    bool ret = true;
++    if (NULL == reg_item || NULL == item_name || NULL == item_str_val ||
++            NULL == parsed_buffer) {
++        rc = false;
++    } else {
++        bmi26x_self_define_state_t  *reg_arg  = (bmi26x_self_define_state_t *)parsed_buffer;
++        bmi26x_state *sstate =  (bmi26x_state *) reg_arg->priv;
++
++        BMI26X_SENSOR_LOG(LOW, sstate->owner, "start get crt value, %d %d %d",
++                          reg_item->has_sint, reg_item->has_subgroup, reg_item->has_version);
++
++        if (reg_item->has_sint) {
++            if (0 == strncmp((char*)item_name->buf, "",
++                             item_name->buf_len)) {
++                reg_arg->crt_buffer[0] = reg_item->sint;
++            } else if (0 == strncmp((char*)item_name->buf, BMI26X_REG_NN_PLATFORM_CRT_CONFIG_GAIN_Y,
++                                    item_name->buf_len)) {
++                reg_arg->crt_buffer[1] = reg_item->sint;
++            } else if (0 == strncmp((char*)item_name->buf, BMI26X_REG_NN_PLATFORM_CRT_CONFIG_GAIN_Z,
++                                    item_name->buf_len)) {
++                reg_arg->crt_buffer[2] = reg_item->sint;
++            } else  if (0 == strncmp((char*)item_name->buf, BMI26X_REG_NN_MULTIPLE_CRT_INTERVAL,
++                                     item_name->buf_len)) {
++                reg_arg->crt_buffer[0] = reg_item->sint;
++            }
++        }
++    }
+ 
++    return ret;
++}
++#endif
+ void demo_sensor_parse_registry(sns_sensor *const this, sns_sensor_event *event)
+ {
+     demo_state *state = (demo_state *)this->state->state;
+@@ -509,9 +555,11 @@ void demo_sensor_parse_registry(sns_sensor *const this, sns_sensor_event *event)
+                         } else if (state->sensor_type == DEMO_GYRO) {
+ 
+                         }
+-                        DEMO_SENSOR_LOG(ERROR, this,
++                        DEMO_SENSOR_LOG(HIGH, this, "demo_sensor_parse_registry:get res_idx = %d", state->res_idx);
++                        DEMO_SENSOR_LOG(HIGH, this,
+                                         "demo_sensor_parse_registry:sensor %d get [is_dri, hw_id, res_idx, sync_stream]->[%d, %d, %d, %d]",
+-                                        state->sensor_type, state->common->ss_cfg.is_dri, state->common->ss_cfg.hw_id, state->common->ss_cfg.res_idx, state->common->ss_cfg.sync_stream)
++                                        state->sensor_type, state->common->ss_cfg.is_dri,state->common->ss_cfg.hw_id,
++                                        state->common->ss_cfg.res_idx, state->common->ss_cfg.sync_stream);
+                     } else {
+                         DEMO_SENSOR_LOG(HIGH, this, "demo_sensor_parse_registry:parse sensor.config get nothing...");
+                     }
+@@ -545,13 +593,17 @@ void demo_sensor_parse_registry(sns_sensor *const this, sns_sensor_event *event)
+                         state->common->com_port.com_config.reg_addr_type = state->common->pf_cfg.reg_addr_type;
+                         if (state->common->com_port.com_config.bus_type == SNS_BUS_I3C) {
+                             state->dummy_byte = DEMO_I3C_DUMMY;
++                            state->common->com_port.dummy_byte = DEMO_I3C_DUMMY;
+                             state->common->com_port.com_config.slave_control = state->common->pf_cfg.i3c_address;  // i3c addr
+                         } else if (state->common->com_port.com_config.bus_type == SNS_BUS_I2C) {
+                             state->dummy_byte = DEMO_I2C_DUMMY;
++                            state->common->com_port.dummy_byte = DEMO_I2C_DUMMY;
+                         } else if (state->common->com_port.com_config.bus_type == SNS_BUS_SPI) {
+                             state->dummy_byte = DEMO_SPI_DUMMY;
++                            state->common->com_port.dummy_byte = DEMO_SPI_DUMMY;
+                         } else {
+                             state->dummy_byte = 0;
++                            state->common->com_port.dummy_byte = 0;
+                             DEMO_SENSOR_LOG(ERROR, this, "demo_sensor_parse_registry:unknown bus type!");
+                         }
+                         /* power rail config */
+@@ -731,6 +783,41 @@ void demo_sensor_parse_registry(sns_sensor *const this, sns_sensor_event *event)
+                         DEMO_SENSOR_LOG(ERROR, this, "fac_cal error: %d", state->sensor_type);
+                     }
+                 }
++            } else if (!strncmp((char *)group_name.buf, demo_registry_cfg[state->hw_idx][REG_CONFIG_SPEC], group_name.buf_len)) {
++                DEMO_SENSOR_LOG(HIGH, this, "demo_sensor_parse_registry:parse spec/.config");
++#if 0
++                {
++                    sns_registry_decode_arg arg = {
++                        .item_group_name = &group_name,
++                        .parse_info_len = 1,
++                        .parse_info[0] = {
++                            .group_name = "config",
++                            .parse_func = demo_sns_registery_parse_spec_func,
++                            .parsed_buffer = &spec_bugger
++                        }
++                    };
++                    read_event.data.items.funcs.decode = sns_registry_item_decode_cb;
++                    read_event.data.items.arg = &arg;
++                    if (pb_decode(&stream, sns_registry_read_event_fields, &read_event)) {
++                        state->common->registry_ss_cfg_received = true;
++                        state->hw_idx = state->common->ss_cfg.hw_id;
++                        state->is_dri = state->common->ss_cfg.is_dri;
++                        state->res_idx = state->common->ss_cfg.res_idx;
++                        if (state->sensor_type == DEMO_ACCEL) {
++
++                        } else if (state->sensor_type == DEMO_GYRO) {
++
++                        }
++                        DEMO_SENSOR_LOG(HIGH, this, "demo_sensor_parse_registry:get res_idx = %d", state->res_idx);
++                        DEMO_SENSOR_LOG(HIGH, this,
++                                        "demo_sensor_parse_registry:sensor %d get [is_dri, hw_id, res_idx, sync_stream]->[%d, %d, %d, %d]",
++                                        state->sensor_type, state->common->ss_cfg.is_dri,state->common->ss_cfg.hw_id,
++                                        state->common->ss_cfg.res_idx, state->common->ss_cfg.sync_stream)
++                    } else {
++                        DEMO_SENSOR_LOG(HIGH, this, "demo_sensor_parse_registry:parse sensor.config get nothing...");
++                    }
++                }
++#endif
+             } else {
+                 DEMO_SENSOR_LOG(HIGH, this, "demo_sensor_parse_registry:unknown registry property, please check");
+             }
+@@ -778,6 +865,7 @@ void demo_sensor_send_registry_request(sns_sensor *const this)
+         stream_svc->api->create_sensor_stream(stream_svc, this, state->registry_suid, &state->registry_stream);
+ 
+         // send common registry req: only need ONCE!
++        send_registry_request(this, demo_registry_cfg[state->hw_idx][REG_CONFIG_SPEC]);
+         send_registry_request(this, demo_registry_cfg[state->hw_idx][REG_PLATFORM_CONFIG]);
+         send_registry_request(this, demo_registry_cfg[state->hw_idx][REG_PLATFORM_PLACEMENT]);
+         send_registry_request(this, demo_registry_cfg[state->hw_idx][REG_PLATFORM_CONFIG_MD]);
+diff --git a/ssc_drivers/demo/src/sns_demo_sensor.h b/ssc_drivers/demo/src/sns_demo_sensor.h
+index bbb0b87..6dcec1d 100644
+--- a/ssc_drivers/demo/src/sns_demo_sensor.h
++++ b/ssc_drivers/demo/src/sns_demo_sensor.h
+@@ -113,7 +113,7 @@ typedef struct demo_common_state {
+     bool registry_placement_received;
+     bool registry_orient_received;
+ 
+-    com_port_info_t com_port;
++    com_port_info com_port;
+     sns_rail_config rail_cfg;
+     sns_power_rail_state registry_rail_on_state;
+ 
+@@ -156,7 +156,8 @@ typedef struct demo_state {
+     int32_t fac_cal_bias[3];
+     float fac_cal_scale[3];
+     uint32_t fac_cal_version;
+-    uint32_t scale_factor;
++    //uint32_t scale_factor;
++    float scale_factor;
+ 
+     float resolutions[4];
+     bool is_dri;
+diff --git a/ssc_drivers/demo/src/sns_demo_sensor_instance.c b/ssc_drivers/demo/src/sns_demo_sensor_instance.c
+index 827245a..80e90ed 100644
+--- a/ssc_drivers/demo/src/sns_demo_sensor_instance.c
++++ b/ssc_drivers/demo/src/sns_demo_sensor_instance.c
+@@ -55,6 +55,7 @@ void demo_config_hw(sns_sensor_instance *const this)
+ 
+     if (istate->sensor_type == DEMO_ACCEL) {
+         uint8_t acc_conf[2] = {0};
++        //demo_com_read_wrapper(istate->scp_service, &istate->com_port.port_handle, DEMO_ACC_CONF_ADDR, acc_conf, sizeof(acc_conf), NULL);
+         demo_com_read_wrapper(istate->scp_service, istate->com_port.port_handle, DEMO_ACC_CONF_ADDR, acc_conf, sizeof(acc_conf), NULL);
+         DEMO_INSTANCE_LOG(HIGH, this, "demo_config_hw:get acc_conf[0x%02x, 0x%02x]", acc_conf[0], acc_conf[1]);
+ 
+@@ -190,6 +191,10 @@ sns_rc demo_instance_init(sns_sensor_instance *const this, sns_sensor_state cons
+         data_stream->api->send_request(data_stream, &ascp_request);
+     }
+ 
++    com_port_info *com_port = container_of(
++        sns_sync_com_port_handle *, &(state->common->com_port.port_handle), com_port_info, port_handle);
++    DEMO_INSTANCE_LOG(HIGH, this, "demo_instance_init:com_port = [0x%p, %d], istate's = [0x%p, %d]",
++                    com_port, com_port->dummy_byte, &(istate->com_port), istate->com_port.dummy_byte);
+     /* init chip register config */
+     DEMO_INSTANCE_LOG(HIGH, this, "demo_instance_init:init chip register config");
+ 
+diff --git a/ssc_drivers/demo/src/sns_demo_sensor_instance.h b/ssc_drivers/demo/src/sns_demo_sensor_instance.h
+index dc2ffed..65713d8 100644
+--- a/ssc_drivers/demo/src/sns_demo_sensor_instance.h
++++ b/ssc_drivers/demo/src/sns_demo_sensor_instance.h
+@@ -67,7 +67,7 @@ typedef struct demo_instance_state {
+     //sns_diag_service *diag_service;
+     sns_sync_com_port_service *scp_service;
+     //sns_pwr_rail_service *pwr_rail_service;
+-    com_port_info_t com_port;
++    com_port_info com_port;
+     sns_async_com_port_config ascp_config;
+ 
+     size_t encoded_imu_event_len;
+diff --git a/ssc_drivers/demo/src/sns_demo_sensor_island.c b/ssc_drivers/demo/src/sns_demo_sensor_island.c
+index f3ddda9..13df3db 100644
+--- a/ssc_drivers/demo/src/sns_demo_sensor_island.c
++++ b/ssc_drivers/demo/src/sns_demo_sensor_island.c
+@@ -386,8 +386,8 @@ sns_rc demo_sensor_notify_event(sns_sensor *const this)
+ 
+     DEMO_SENSOR_LOG(LOW, this, "demo_sensor_notify_event:sensor %d start", state->sensor_type);
+ #if 1
+-    demo_state *test_state = container_of(demo_sensor_type, &state->sensor_type, demo_state, sensor_type);
+-    DEMO_SENSOR_LOG(LOW, this, "demo_sensor_notify_event:state = 0x%p, container = 0x%p", state, test_state);
++    // demo_state *test_state = container_of(demo_sensor_type, &state->sensor_type, demo_state, sensor_type);
++    // DEMO_SENSOR_LOG(LOW, this, "demo_sensor_notify_event:state = 0x%p, container = 0x%p", state, test_state);
+ #endif
+     /* process suid event, and send registry req if needed */
+     demo_sensor_process_suid_event(this);

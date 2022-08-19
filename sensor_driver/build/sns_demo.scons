@@ -1,0 +1,52 @@
+#===============================================================================
+#
+# DEMO sensor implementation
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) 2017-2021 by Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#===============================================================================
+Import('env')
+import inspect
+
+if 'sns_demo' not in env['SSC_INCLUDE_SENS_VEND_LIBS']:
+  Return()
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  if 'SNS_DISABLE_REGISTRY' in env:
+    env.Append( CPPDEFINES = ['DEMO_REGISTRY_DISABLED=1'] )
+  else:
+    env.Append( CPPDEFINES = ['DEMO_REGISTRY_DISABLED=0'] )
+
+  if 'DEMO_ENABLE_DUAL_SENSOR' in env:
+    env.Append( CPPDEFINES = ['DEMO_ENABLE_DUAL_SENSOR'] )
+    num_copy = 2
+  else:
+    num_copy = 1
+
+  if 'SSC_INCLUDE_SENS_VEND_LIBS' in env and ('sns_demo' in env['SSC_INCLUDE_SENS_VEND_LIBS']):
+    # HY11 builds - ship as source
+    clean_pack_list = []
+  else:
+    # Delete the NPOR driver from pack builds
+    clean_pack_list = ['*']
+
+  demo_island_enable = True if 'SNS_ISLAND_INCLUDE_DEMO' in env else False
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               register_func_name = "sns_register_demo",
+               ext_ssc_sensor = True,
+               binary_lib = False,
+               ssc_protected_api = ['SNS_INTERNAL_INCLUDE'],
+               clean_pack_list = clean_pack_list,
+               cflags = ['-Wno-sign-compare', '-Wno-enum-compare'],
+               add_island_files = demo_island_enable,
+               registration_cnt = num_copy)
+
+#------------------------------------------------------------------------------
+# Scan subdirectories to find more /build folders
+#------------------------------------------------------------------------------
+env.LoadSoftwareUnits()
