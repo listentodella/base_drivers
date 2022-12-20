@@ -78,14 +78,21 @@ int main()
     //     free(pos);
     // }
 
+    int i = 0;
     //list_for_each_entry(pos, &class, node) { // if deleted, not safe
     list_for_each_entry_safe(pos, tmp, &class, node) {
+        if (i != 2) {
+            i++;
+           continue; 
+        }
         printf("remove stu[%s]: age = %d\n", pos->name, pos->age);
         //list_del(&pos->node); // not safe, but still work
         list_del_init(&pos->node); // safe
         free(pos);
+        break;
     }
 
+    printf(" ============ EXIST =============== \n");
     pos = NULL;
     list_for_each_entry(pos, &class, node) {
         printf("exist stu[%s]: age = %d\n", pos->name, pos->age);
